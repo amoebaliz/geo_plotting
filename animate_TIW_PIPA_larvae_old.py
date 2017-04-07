@@ -60,7 +60,7 @@ def get_sst(i):
     #ref = dt.datetime(int(outdatadir[43:47]),int(outdatadir[47:49]),int(outdatadir[49:51]))
     #ref = dt.datetime(int(outdatadir[47:51]),int(outdatadir[51:53]),int(outdatadir[53:55]))
     #ref = dt.datetime(int(outdatadir[51:55]),int(outdatadir[55:57]),int(outdatadir[57:59]))
-    ref = dt.datetime(int(outdatadir[52:56]),int(outdatadir[56:58]),int(outdatadir[58:60]))
+    ref = dt.datetime(int(outdatadir[51:55]),int(outdatadir[55:57]),int(outdatadir[57:59]))
     filedate = ref + dt.timedelta(days = i)
     #filedate = ref + dt.timedelta(days = nday+nff*i)
 
@@ -71,11 +71,11 @@ def get_sst(i):
     return sst, str(filedate.year),str(filedate.month).zfill(2),str(filedate.day).zfill(2)
 
 def get_particles(i):
-    row_start = istep[nstep-i-1]
-    if i == 0:
+    row_start = istep[i]
+    if i == nstep-1:
        row_end=None
     else:
-       row_end = istep[nstep-i]
+       row_end = istep[i+1]
     xvals = data2[row_start:row_end,1]+ioffset
     yvals = data2[row_start:row_end,2]+joffset
     lon_vals,lat_vals = convert_coord(yvals,xvals)
@@ -107,8 +107,10 @@ def updatefig(i):
 #~~~~~~~~REPLACE FILENAME HERE~~~~~~~#
 
 #outdatadir = '/Volumes/P4/workdir/liz/pipa_tracmass/pipa/19920603-1200/'
+#outdatadir = '/Volumes/P4/workdir/liz/PIPA_tracmass/forward/pipa/19930101-1200/'
+outdatadir = '/Volumes/P4/workdir/liz/PIPA_tracmass/forward/pipa/19990501-0000/'
 #outdatadir ='/Volumes/P4/workdir/liz/pipa_tracmass/pipa/20121201-0000/'
-outdatadir ='/Volumes/P4/workdir/liz/PIPA_tracmass/backward/pipa/19990301-1200/'
+#outdatadir ='/Volumes/P4/workdir/liz/PIPA_tracmass/backward/pipa/19990301-1200/'
 #outdatadir ='/Volumes/P4/workdir/liz/PIPA_tracmass/pipa/20090101-1200/'
 filename = 'test_pipa_run.bin'
 
@@ -132,7 +134,7 @@ istep = np.append([0],istep)
 nstep = len(istep)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # DIRECTION OF TIMESTEP
-nff = -1
+nff = 1
 
 # FORTRAN TO PYTHON CONVERSION
 ioffset = 0
@@ -140,7 +142,7 @@ joffset = 0
 
 # SUBSETTING GLOBAL GLORYS BASED ON TRACMASS GRID 
 Ilons = [344-1,575]
-Ilats = [450-1,540]
+Ilats = [450-1,560]
 
 # ACCESS GRID INFO
 grid_file = '/Volumes/P4/workdir/liz/external_data/GLORYS_files/GL2V1_mesh_mask_new.nc'  
@@ -198,5 +200,7 @@ tx =plt.text(lons[ilats[0],ilons[0]]-b/2,lats[ilats[-1],ilons[-1]]+b/2,'', fonts
 #ani = animation.FuncAnimation(fig, updatefig,frames=10, blit=False)
 n=0
 ani = animation.FuncAnimation(fig, updatefig,frames=nstep, blit=False)
+
+#ani = animation.FuncAnimation(fig, updatefig,frames=150, blit=False)
 ani.save('PIPA_map.gif', writer = 'imagemagick',fps=5)
 #plt.show()
