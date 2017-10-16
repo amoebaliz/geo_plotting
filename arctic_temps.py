@@ -47,7 +47,7 @@ m = Basemap(projection='npstere',boundinglat=30,lon_0=0,resolution='l',ax=ax)
 
 # DATA PLOTTING
 P = m.pcolormesh(lon,lat,SST,latlon=True)
-polygon_patch(m,ax)
+#polygon_patch(m,ax)
 
 m.drawparallels(np.arange(30.,91.,30.))
 m.drawmeridians(np.arange(-180.,181.,30.))
