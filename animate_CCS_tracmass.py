@@ -1,6 +1,10 @@
 # this is a Python script that takes in binary output from TRACMASS,
 # reads it, and plots an animation
 
+# NOTE: COMMENTED OUT CURSOR LINES IN BACKEND FILE: 
+# /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/matplotlib/backends/backend_agg.py  
+# OTHERWISE WON'T SAVE GIF ANIMATION
+
 import pytraj
 import pyroms
 import pandas
@@ -78,7 +82,6 @@ def outline_mask(mapid,mask_img,val,x0,y0,x1,y1):
     segments = np.array(l)
     vip_segments = np.array(v)
     mapid.plot(segments[:,0], segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+2)
-#    mapid.plot(vip_segments[:,0], vip_segments[:,1], latlon=True, color=(0,0,1), linewidth=.75,zorder=map_order+3)
     mapid.plot(vip_segments[:,0], vip_segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+3)
 
 
@@ -144,7 +147,12 @@ fig = plt.figure(figsize=(8,8))
 fig.subplots_adjust(left=.1, right=.9, bottom=0, top=1)
 ax = fig.add_subplot(111, aspect='equal', autoscale_on=False) #, xlim=(0, mask.shape[1]), ylim=(0, mask.shape[0]))
 
-m = Basemap(llcrnrlat=np.min(lat)-m_offset,urcrnrlat = np.max(lat)+m_offset,llcrnrlon=np.min(lon)-m_offset,urcrnrlon=np.max(lon)+m_offset, resolution='f', ax=ax)
+# SUBDOMAIN
+m = Basemap(llcrnrlat=30-.5,urcrnrlat = 35+.5,llcrnrlon=-121.5-m_offset,urcrnrlon=-115.5+m_offset, resolution='f', ax=ax)
+
+# WHOLE DOMAIN
+#m = Basemap(llcrnrlat=np.min(lat)-m_offset,urcrnrlat = np.max(lat)+m_offset,llcrnrlon=np.min(lon)-m_offset,urcrnrlon=np.max(lon)+m_offset, resolution='f', ax=ax)
+
 P = m.pcolormesh(lon,lat,mask,vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
 P.cmap.set_under('white')
 P.cmap.set_over([.9,.97,1])
@@ -168,17 +176,17 @@ m.drawparallels([30,35], labels=[1,0,0,0], fmt='%d', fontsize=18,zorder=map_orde
 
 #ax.xaxis.set_ticks([])
 #ax.yaxis.set_ticks([])
-ax.set_xlim(-121.5-m_offset,-115.5+m_offset)
-ax.set_ylim(30-m_offset,35+m_offset)
+#ax.set_xlim(-121.5-m_offset,-115.5+m_offset)
+#ax.set_ylim(30-m_offset,35+m_offset)
 #ax.set_xlim(360,400)
 #ax.set_ylim(80,200)
 print 'MEEP'
 particles, = m.plot([], [], 'go', ms =1, mec = 'none',zorder=map_order+4) #mec='y',ms=4)
 #particles, = ax.plot([], [], 'o', ms =4) #mec='y',ms=4)
+
 def init():
 #   initialize animation
     particles.set_data([], [])
-    #particles.set_markerfacecolor([]) 
     return particles,
 
 def animate(i):
@@ -203,6 +211,6 @@ def animate(i):
 
 ani = animation.FuncAnimation(fig, animate, frames=(nstep), interval=200, blit=True, init_func=init)
 #ani = animation.FuncAnimation(fig, animate, frames=3, interval=200, blit=True, init_func=init)
-#ani.save('CCS.gif', writer = 'imagemagick',fps=5)
-plt.show()
+ani.save('CCS.gif',writer='imagemagick',fps=5)
+#plt.show()
  
