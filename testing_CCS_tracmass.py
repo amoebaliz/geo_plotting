@@ -118,21 +118,31 @@ referencefile = str(outdatadir + filename)
 data1 = pandas.DataFrame(tr.readfile(referencefile))
 
 #Adjust columns in the dataframes
-print 'MEEP'
-print data1.loc[0,:]
-data1 = data1.loc[:,['ntrac','x','y']]
+data1 = data1.loc[:,['ntrac','ints','x','y']]
 
 #Change to numpy array
 data2 = pandas.DataFrame.as_matrix(data1)
+
+# TESTING SPECIFIC TRACERS
+print 'MEEP', data2.shape
+nst=0
+for j in range(data2.shape[0]):
+    if data2[j,0]==13:
+       print data2[j,1], data2[j,2], data2[j,3]
+       nst+=1
+
+print 'NST = ', nst
 
 #Determine number of steps and which particles they contain
 data_dif = np.diff(data2[:,0])
 istep = (np.where(data_dif<1)[0])+1
 istep = np.append([0],istep)
 nstep = len(istep)
+print np.sum(np.diff(istep))
+print data2.shape[0]-np.sum(np.diff(istep))
 
-for j in range(istep[1]):
-    print data2[j,:]
+#for j in range(istep[1]):
+#    print data2[j,:]
 
 GRD = pyroms.grid.get_ROMS_grid('CCS')
 mask = GRD.hgrid.mask_rho
