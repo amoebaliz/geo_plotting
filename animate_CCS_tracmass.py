@@ -86,22 +86,42 @@ def outline_mask(mapid,mask_img,val,x0,y0,x1,y1):
 
 
 def bilin_interp(x,y):
-    lats = np.empty([len(y)])
-    lons = np.empty([len(x)])
+    lats = np.empty([len(np.array(y))])
+    lons = np.empty([len(np.array(x))])
     for nt in range(len(x)):
         x1 = int(np.floor(x[nt])); x2 = int(np.ceil(x[nt]))
         y1 = int(np.floor(y[nt])); y2 = int(np.ceil(y[nt]))
+
+        # VECTOR = 1x2
         xdifs = np.array([x2-x[nt], x[nt]-x1])
+        # VECTOR = 2x1
         ydifs = np.array([[y2-y[nt]],\
-                          [y[nt]-y1]]) 
+                           [y[nt]-y1]]) 
+
         flats = np.array([[lat[y1,x1],lat[y2,x1]],\
-                          [lat[y1,x2],lat[y2,x2]]])
+                         [lat[y1,x2],lat[y2,x2]]])
 
         flons = np.array([[lon[y1,x1],lon[y2,x1]],\
-                          [lon[y1,x2],lon[y2,x2]]])
+                         [lon[y1,x2],lon[y2,x2]]])
 
-        lats[nt] = np.dot(xdifs,np.dot(flats,ydifs)) 
-        lons[nt] = np.dot(xdifs,np.dot(flons,ydifs))  
+        if ((x1 != x2) & (y1 != y2)):
+           # run bilinear interp
+           lats[nt] = np.dot(xdifs,np.dot(flats,ydifs)) 
+           lons[nt] = np.dot(xdifs,np.dot(flons,ydifs))  
+
+        elif ((x1 == x2) & (y1 != y2)):
+             # INTERP BASED JUST ON y-values
+             lats[nt] = np.dot(flats[0,:],ydifs) 
+             lons[nt] = np.dot(flons[0,:],ydifs)
+
+        elif ((x1 != x2) & (y1 == y2)):
+             # INTEP BASED JUST ON x-values
+             lats[nt] = np.dot(xdifs,flats[:,0])
+
+        else:
+             # FALLS EXACTLY ON RHO POINT; y1=y2 and x1=x2
+             lats[nt] = lat[y1,x1]
+             lons[nt] = lon[y1,x1]
      
     return lats,lons
      
@@ -118,8 +138,6 @@ referencefile = str(outdatadir + filename)
 data1 = pandas.DataFrame(tr.readfile(referencefile))
 
 #Adjust columns in the dataframes
-print 'MEEP'
-print data1.loc[0,:]
 data1 = data1.loc[:,['ntrac','x','y']]
 
 #Change to numpy array
@@ -131,8 +149,8 @@ istep = (np.where(data_dif<1)[0])+1
 istep = np.append([0],istep)
 nstep = len(istep)
 
-for j in range(istep[1]):
-    print data2[j,:]
+print nstep
+print data2.shape
 
 GRD = pyroms.grid.get_ROMS_grid('CCS')
 mask = GRD.hgrid.mask_rho
