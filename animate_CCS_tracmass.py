@@ -125,7 +125,7 @@ def bilin_interp(x,y):
      
     return lats,lons
      
-
+nff = -1
 #~~~~~~~~REPLACE FILENAME HERE~~~~~~~#
 outdatadir = '/Users/elizabethdrenkard/ANALYSES/CCS/tracmass_out/ccs/00050701-1200/'
 filename = 'testCCS_run.bin'
@@ -184,6 +184,7 @@ P.cmap.set_over([.9,.97,1])
 # MAP DETAILING
 outline_mask(m,mask,mask_val,lon[0,0],lat[0,0],lon[-1,-1],lat[-1,-1])
 
+
 #DOMAIN OUTLINE
 for j in range(lat.shape[0]-2):
     m.plot((lon[j,0],lon[j+1,0]),(lat[j,0],lat[j+1,0]),linewidth=2,color='k',zorder=map_order+1)
@@ -199,12 +200,12 @@ m.drawparallels([30,35], labels=[1,0,0,0], fmt='%d', fontsize=18,zorder=map_orde
 
 #ax.xaxis.set_ticks([])
 #ax.yaxis.set_ticks([])
-#ax.set_xlim(-121.5-m_offset,-115.5+m_offset)
-#ax.set_ylim(30-m_offset,35+m_offset)
+ax.set_xlim(-121.5-m_offset,-115.5+m_offset)
+ax.set_ylim(30-.5,35+.5)
 #ax.set_xlim(360,400)
 #ax.set_ylim(80,200)
 print 'MEEP'
-particles, = m.plot([], [], 'go', ms =1, mec = 'none',zorder=map_order+4) #mec='y',ms=4)
+particles, = m.plot([], [], 'go', ms =2, mec = 'none',zorder=map_order+4) #mec='y',ms=4)
 #particles, = ax.plot([], [], 'o', ms =4) #mec='y',ms=4)
 
 def init():
@@ -220,6 +221,21 @@ def animate(i):
        row_end=None
     else:
        row_end = istep[i+1]
+
+    print i
+    if nff == 1:
+       row_start = istep[i]
+       if i == nstep-1:
+          row_end=None
+       else:
+          row_end = istep[i+1]
+    elif nff == -1: 
+       row_start = istep[nstep-(i+1)]
+       if i == 0:
+          row_end=None
+       else:
+          row_end = istep[nstep-i]
+
  
     xvals = data2[row_start:row_end,1]+ioffset
     yvals = data2[row_start:row_end,2]+joffset

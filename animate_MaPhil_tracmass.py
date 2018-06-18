@@ -87,14 +87,13 @@ def bilin_interp(x,y):
     lats = np.empty([len(y)])
     lons = np.empty([len(x)])
     for nt in range(len(x)):
-        x1 = np.floor(x[nt]); x2 = np.ceil(x[nt])
-        y1 = np.floor(y[nt]); y2 = np.ceil(y[nt])
+        x1 = int(np.floor(x[nt])); x2 = int(np.ceil(x[nt]))
+        y1 = int(np.floor(y[nt])); y2 = int(np.ceil(y[nt]))
         
         xdifs = np.array([x2-x[nt], x[nt]-x1])
 
         ydifs = np.array([[y2-y[nt]],\
                           [y[nt]-y1]]) 
-
         flats = np.array([[lat[y1,x1],lat[y2,x1]],\
                           [lat[y1,x2],lat[y2,x2]]])
 
@@ -108,7 +107,7 @@ def bilin_interp(x,y):
      
 
 #~~~~~~~~REPLACE FILENAME HERE~~~~~~~#
-outdatadir = '/Volumes/P4/workdir/liz/MAPHIL_tracmass/forward/maphil/20130605-2000/'
+outdatadir = '/Users/elizabethdrenkard/Desktop/'
 filename = 'test_maphil_run.bin'
 #(CASENAME, PROJECTNAME) :: Initiates pytraj
 tr = pytraj.Trm('maphil','maphil')
@@ -168,14 +167,6 @@ polygon_patch(m,ax)
 m.drawmeridians([124,125], labels=[0,0,1,0], fmt='%d', fontsize=18)
 m.drawparallels([10,11], labels=[1,0,0,0], fmt='%d', fontsize=18)
 
-#plt.show()
-#ax.xaxis.set_ticks([])
-#ax.yaxis.set_ticks([])
-#ax.set_xlim(350,500)
-#ax.set_ylim(100,210)
-#ax.set_xlim(360,400)
-#ax.set_ylim(80,200)
-
 particles, = m.plot([], [], 'go', ms =1, mec = 'none',zorder=map_order+4) #mec='y',ms=4)
 #particles, = ax.plot([], [], 'o', ms =4) #mec='y',ms=4)
 def init():
@@ -198,7 +189,11 @@ def animate(i):
     #cvals = data2[row_start:row_end,0]
     #cvals = plt.cm.jet(norm(data2[row_start:row_end,0]))
     lat_vals, lon_vals = bilin_interp(xvals,yvals) 
-
+    if i==nstep-1:
+       #plt.figure()
+       print data2[row_start:row_end,1]
+       #plt.plot(data2[row_start:row_end,1],data2[row_start:row_end,2],'o')
+       #plt.show()
     particles.set_data(lon_vals,lat_vals)
     #particles.set_markerfacecolor(cvals)
 
