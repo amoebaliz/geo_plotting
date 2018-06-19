@@ -30,19 +30,17 @@ def get_vel(i):
 
     return u_vel, v_vel 
 
-
-
-
 nff = 1
 trmrn = 'analytical'
 #(CASENAME, PROJECTNAME) :: Initiates pytraj
 tr = pytraj.Trm(trmrn,trmrn)
-
 #~~~~~~~~REPLACE FILENAME HERE~~~~~~~#
 grdfil     = '/Users/elizabethdrenkard/external_data/analytical_tracmass/test_grd.nc'
-outdatadir = '/Users/elizabethdrenkard/external_data/analytical_tracmass/analytical/20100101-1200/'
+outdatadir = '/Users/elizabethdrenkard/external_data/analytical_tracmass/analytical/20100101-0000/'
+outdatadir = '/Users/elizabethdrenkard/external_data/analytical_tracmass/analytical/20091231-1200/'
 filename   = 'test_analytical_t00040177_run.bin'
-#filename   = 'test_analytical_t00040184_run.bin'
+filename   = 'test_analytical_t00040176_run.bin'
+filename   = 'test_analytical_t00040176_run.bin'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 referencefile = str(outdatadir + filename)
@@ -70,7 +68,7 @@ mask = np.squeeze(fid.variables['mask_rho'][:])
 fig = plt.figure(figsize=(8,8))
 fig.subplots_adjust(left=.1, right=.9, bottom=.1, top=.9)
 ax = fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(0, mask.shape[1]-1), ylim=(0, mask.shape[0]-1))
-ax.pcolor(mask,vmin = -.1, vmax =1.1, cmap='ocean')
+ax.pcolor(mask,vmin = -.1, vmax =1.1, cmap='afmhot')
 
 #GRID
 [ax.plot([x,x],[0,mask.shape[0]],color='lightsteelblue') for x in np.linspace(0,90,num=91)] 
@@ -119,12 +117,10 @@ def updatefig(i):
  
     xvals = data2[row_start:row_end,1]
     yvals = data2[row_start:row_end,2]
-    print len(np.unique(xvals))
-    #print np.unique(yvals)
 
     u,v= get_vel(i)
     im1,   = ax.plot(xvals, yvals, 'o', ms=6,mfc='orange',mec='k',zorder=11)
-    im2   = ax.quiver(velx,vely,u,v,scale=.2,pivot='mid',color='darkseagreen',zorder=10)
+    im2   = ax.quiver(velx,vely,u,v,scale=.2,pivot='mid',headwidth=5,headlength=6,headaxislength=5.5,color='darkseagreen',zorder=10)
     #tx_str = mon 
     #tx.set_text(tx_str)
 
