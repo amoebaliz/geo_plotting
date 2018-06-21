@@ -12,8 +12,11 @@ import matplotlib.animation as animation
 
 def get_vel(i):
     # FILENAME
-    ncfil = '/Users/elizabethdrenkard/external_data/analytical_tracmass/test_2010_01-' + \
-    str(i+1).zfill(2) + '.nc' 
+    if i == 0:
+       ncfil = '/Users/elizabethdrenkard/external_data/analytical_tracmass/test_2009_12-31.nc' 
+    else: 
+       ncfil = '/Users/elizabethdrenkard/external_data/analytical_tracmass/test_2010_01-' + \
+       str(i).zfill(2) + '.nc' 
     
     # GET VELOCITY FIELDS
     fid = nc.Dataset(ncfil)
@@ -36,11 +39,9 @@ trmrn = 'analytical'
 tr = pytraj.Trm(trmrn,trmrn)
 #~~~~~~~~REPLACE FILENAME HERE~~~~~~~#
 grdfil     = '/Users/elizabethdrenkard/external_data/analytical_tracmass/test_grd.nc'
-outdatadir = '/Users/elizabethdrenkard/external_data/analytical_tracmass/analytical/20100101-0000/'
-outdatadir = '/Users/elizabethdrenkard/external_data/analytical_tracmass/analytical/20091231-1200/'
-filename   = 'test_analytical_t00040177_run.bin'
-filename   = 'test_analytical_t00040176_run.bin'
-filename   = 'test_analytical_t00040176_run.bin'
+outdatadir = '/Users/elizabethdrenkard/external_data/analytical_tracmass/analytical/20100101-1200/'
+#outdatadir = '/Users/elizabethdrenkard/external_data/analytical_tracmass/analytical/20091231-1200/'
+filename   = 'test_analytical_run.bin'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 referencefile = str(outdatadir + filename)
@@ -89,16 +90,18 @@ ax.set_ylim(0,10)
 
 # INITIALIZE FIGURE
 im1, = ax.plot(0, 0, 'o', ms=6)
-u,v = get_vel(0)
-velx, vely = np.meshgrid(np.arange(.5,mask.shape[1]),np.arange(.5,mask.shape[0]))
-im2 = ax.quiver(u,v,zorder=20)
+im2, = ax.plot(0, 0, 'o', ms=6)
+#u,v = get_vel(0)
+#velx, vely = np.meshgrid(np.arange(.5,mask.shape[1]),np.arange(.5,mask.shape[0]))
+#im2 = ax.quiver(u,v,zorder=20)
 
 def updatefig(i):
     global im1, im2  #,tx
     print i
     # REMOVE PREVIOUS FIGURE
     im1.remove() 
-    im2.remove()
+    if i > 0:
+       im2.remove()
 #   perform animation step
     if nff == 1:
        row_start = istep[i]
@@ -117,10 +120,16 @@ def updatefig(i):
  
     xvals = data2[row_start:row_end,1]
     yvals = data2[row_start:row_end,2]
-
-    u,v= get_vel(i)
+    xvals2 = data2[:row_start,1]
+    yvals2 = data2[:row_start,2]
+  #  u,v= get_vel(i)
     im1,   = ax.plot(xvals, yvals, 'o', ms=6,mfc='orange',mec='k',zorder=11)
-    im2   = ax.quiver(velx,vely,u,v,scale=.2,pivot='mid',headwidth=5,headlength=6,headaxislength=5.5,color='darkseagreen',zorder=10)
+    if i>0:
+       xvals2 = data2[:row_start+1,1]
+       yvals2 = data2[:row_start+1,2]
+       im2,   = ax.plot(xvals2, yvals2, '-o',color='r', ms=6,mfc='none',mec='r',zorder=10)
+
+ #   im2   = ax.quiver(velx,vely,u,v,scale=.2,pivot='mid',headwidth=5,headlength=6,headaxislength=5.5,color='darkseagreen',zorder=10)
     #tx_str = mon 
     #tx.set_text(tx_str)
 
