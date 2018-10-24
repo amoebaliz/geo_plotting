@@ -127,7 +127,7 @@ def updatefig(i):
     if i>0:
        xvals2 = data2[:row_start+1,1]
        yvals2 = data2[:row_start+1,2]
-       im2,   = ax.plot(xvals2, yvals2, '-o',color='r', ms=6,mfc='none',mec='r',zorder=10)
+       im2,   = ax.plot(xvals2, yvals2, 'o',color='r', ms=6,mfc='none',mec='r',zorder=10)
 
  #   im2   = ax.quiver(velx,vely,u,v,scale=.2,pivot='mid',headwidth=5,headlength=6,headaxislength=5.5,color='darkseagreen',zorder=10)
     #tx_str = mon 

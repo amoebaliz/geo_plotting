@@ -5,8 +5,6 @@
 # /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/matplotlib/backends/backend_agg.py  
 # OTHERWISE WON'T SAVE GIF ANIMATION
 
-import pytraj
-import pyroms
 import pandas
 import netCDF4 as nc
 import numpy as np
@@ -125,37 +123,36 @@ def bilin_interp(x,y):
      
     return lats,lons
      
-nff = -1
+nff = 1
 #~~~~~~~~REPLACE FILENAME HERE~~~~~~~#
-outdatadir = '/Users/elizabethdrenkard/ANALYSES/CCS/tracmass_out/ccs/00050701-1200/'
+outdatadir = '/Users/elizabethdrenkard/ANALYSES/CCS/tracmass_out/ccs/00040228-1200/'
 filename = 'testCCS_run.bin'
-#(CASENAME, PROJECTNAME) :: Initiates pytraj
-tr = pytraj.Trm('ccs','ccs')
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 referencefile = str(outdatadir + filename)
 
 #Load the file(s) 
-data1 = pandas.DataFrame(tr.readfile(referencefile))
+# BELOW PULLED FROM PYTRAJ
+runtraj = np.fromfile(open(referencefile), \
+                      np.dtype([('ntrac','i4'), ('ints','f8'),('x','f4'), ('y','f4'),('z','f4')]))
 
-#Adjust columns in the dataframes
-data1 = data1.loc[:,['ntrac','x','y']]
-
-#Change to numpy array
-data2 = pandas.DataFrame.as_matrix(data1)
+# Use pandas to pull selected columns (.loc) and convert to numpy array (.values)
+data = pandas.DataFrame(runtraj).loc[:,['ntrac','x','y']].values
 
 #Determine number of steps and which particles they contain
-data_dif = np.diff(data2[:,0])
+data_dif = np.diff(data[:,0])
 istep = (np.where(data_dif<1)[0])+1
 istep = np.append([0],istep)
 nstep = len(istep)
 
 print nstep
-print data2.shape
 
-GRD = pyroms.grid.get_ROMS_grid('CCS')
-mask = GRD.hgrid.mask_rho
-lat = GRD.hgrid.lat_rho
-lon = GRD.hgrid.lon_rho
+# ROMS Grid information
+grdfile = '/Users/elizabethdrenkard/ANALYSES/CCS/Inputs/Grid/CCS_grd_high_res_bathy_jerlov.nc' 
+fid = nc.Dataset(grdfile)
+mask = fid.variables['mask_rho'][:]
+lat = fid.variables['lat_rho'][:]
+lon = fid.variables['lon_rho'][:]
+
 ### OFFSETS
 joffset = 0
 ioffset = 0
@@ -168,10 +165,7 @@ vip_xi  = [0,376]
 #Set up figure and animation
 fig = plt.figure(figsize=(8,8))
 fig.subplots_adjust(left=.1, right=.9, bottom=0, top=1)
-ax = fig.add_subplot(111, aspect='equal', autoscale_on=False) #, xlim=(0, mask.shape[1]), ylim=(0, mask.shape[0]))
-
-# SUBDOMAIN
-#m = Basemap(llcrnrlat=30-.5,urcrnrlat = 35+.5,llcrnrlon=-121.5-m_offset,urcrnrlon=-115.5+m_offset, resolution='f', ax=ax)
+ax = fig.add_subplot(111, aspect='equal', autoscale_on=False) 
 
 # WHOLE DOMAIN
 m = Basemap(llcrnrlat=np.min(lat)-m_offset,urcrnrlat = np.max(lat)+m_offset,llcrnrlon=np.min(lon)-m_offset,urcrnrlon=np.max(lon)+m_offset, resolution='f', ax=ax)
@@ -200,11 +194,12 @@ m.drawparallels([30,35], labels=[1,0,0,0], fmt='%d', fontsize=18,zorder=map_orde
 
 #ax.xaxis.set_ticks([])
 #ax.yaxis.set_ticks([])
+
 ax.set_xlim(-121.5-m_offset,-115.5+m_offset)
 ax.set_ylim(30-.5,35+.5)
 #ax.set_xlim(360,400)
 #ax.set_ylim(80,200)
-print 'MEEP'
+
 particles, = m.plot([], [], 'go', ms =2, mec = 'none',zorder=map_order+4) #mec='y',ms=4)
 #particles, = ax.plot([], [], 'o', ms =4) #mec='y',ms=4)
 
@@ -222,7 +217,6 @@ def animate(i):
     else:
        row_end = istep[i+1]
 
-    print i
     if nff == 1:
        row_start = istep[i]
        if i == nstep-1:
@@ -237,8 +231,8 @@ def animate(i):
           row_end = istep[nstep-i]
 
  
-    xvals = data2[row_start:row_end,1]+ioffset
-    yvals = data2[row_start:row_end,2]+joffset
+    xvals = data[row_start:row_end,1]+ioffset
+    yvals = data[row_start:row_end,2]+joffset
     #cvals = data2[row_start:row_end,0]
     #cvals = plt.cm.jet(norm(data2[row_start:row_end,0]))
     lat_vals, lon_vals = bilin_interp(xvals,yvals) 
@@ -248,7 +242,7 @@ def animate(i):
 
     return particles,
 
-ani = animation.FuncAnimation(fig, animate, frames=(nstep), interval=200, blit=True, init_func=init)
+ani = animation.FuncAnimation(fig, animate, frames=(nstep), interval=200, blit=False, init_func=init)
 #ani = animation.FuncAnimation(fig, animate, frames=3, interval=200, blit=True, init_func=init)
 ani.save('CCS.gif',writer='imagemagick',fps=5)
 #plt.show()
