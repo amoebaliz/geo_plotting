@@ -131,10 +131,10 @@ map_order = 30
 #Set up figure and animation
 fig = plt.figure(figsize=(8,8))
 fig.subplots_adjust(left=.1, right=.9, bottom=0, top=1)
-ax = fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(0, mask.shape[1]), ylim=(0, mask.shape[0]))
+ax = fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(0, mask_rho.shape[1]), ylim=(0, mask_rho.shape[0]))
 
 m = Basemap(llcrnrlat=np.min(plat)-m_offset,urcrnrlat = np.max(plat)+m_offset,llcrnrlon=np.min(plon)-m_offset,urcrnrlon=np.max(plon)+m_offset, resolution='f', ax=ax)
-P = m.pcolormesh(plon,plat,mask,vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
+P = m.pcolormesh(plon,plat,mask_rho[1:-1,1:-1],vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
 P.cmap.set_under('white')
 P.cmap.set_over([.9,.97,1])
 

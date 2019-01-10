@@ -138,7 +138,7 @@ ax = fig.add_subplot(111, aspect='equal', autoscale_on=False)
 # WHOLE DOMAIN
 m = Basemap(llcrnrlat=np.min(lat)-m_offset,urcrnrlat = np.max(lat)+m_offset,llcrnrlon=np.min(lon)-m_offset,urcrnrlon=np.max(lon)+m_offset, resolution='f', ax=ax)
 
-P = m.pcolormesh(lon,lat,mask,vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
+P = m.pcolormesh(plon,plat,mask_rho[1:-1,1:-1], vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
 P.cmap.set_under('white')
 P.cmap.set_over([.9,.97,1])
 
