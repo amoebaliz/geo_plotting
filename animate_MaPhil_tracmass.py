@@ -2,7 +2,6 @@
 # reads it, and plots an animation
 
 import pytraj
-import pyroms
 import pandas
 import netCDF4 as nc
 import numpy as np
@@ -128,8 +127,6 @@ ioffset = 0
 m_offset = 0.01
 mask_val = 0
 map_order = 30
-vip_eta = [60,240]
-vip_xi  = [177,338]
 
 #Set up figure and animation
 fig = plt.figure(figsize=(8,8))

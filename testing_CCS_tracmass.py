@@ -6,7 +6,6 @@
 # OTHERWISE WON'T SAVE GIF ANIMATION
 
 import pytraj
-import pyroms
 import pandas
 import netCDF4 as nc
 import numpy as np
@@ -35,55 +34,23 @@ def outline_mask(mapid,mask_img,val,x0,y0,x1,y1):
     v = []
     # horizonal segments
     for p in zip(*hor_seg):
-        if (vip_eta[0] < p[0] < vip_eta[1] and vip_xi[0] < p[1] < vip_xi[1]):
-           v.append((lon[p[0]+1,p[1]],lat[p[0]+1,p[1]]))
-        else :
-           l.append((lon[p[0]+1,p[1]],lat[p[0]+1,p[1]]))
-
-        if p[1] == mask_img.shape[1] - 1 :
-           if (vip_eta[0] < p[0] < vip_eta[1] and vip_xi[0] < p[1] < vip_xi[1]):
-               v.append((lon[p[0]+1,p[1]],lat[p[0]+1,p[1]]))
-           else:
-               l.append((lon[p[0]+1,p[1]],lat[p[0]+1,p[1]]))
-        else :
-           if (vip_eta[0] < p[0] < vip_eta[1] and vip_xi[0] < p[1] < vip_xi[1]):
-              v.append((lon[p[0]+1,p[1]+1],lat[p[0]+1,p[1]+1]))
-           else:
-              l.append((lon[p[0]+1,p[1]+1],lat[p[0]+1,p[1]+1]))
+        v.append((plon[p[0]+1,p[1]],plat[p[0]+1,p[1]]))
+        v.append((plon[p[0]+1,p[1]+1],plat[p[0]+1,p[1]+1]))
 
         l.append((np.nan,np.nan))
         v.append((np.nan,np.nan))
     #vertical segments
     for p in zip(*ver_seg):
-        if p[1] == mask_img.shape[1]-1:
-           if (vip_eta[0] < p[0] < vip_eta[1] and vip_xi[0] < p[1] < vip_xi[1]):
-              v.append((lon[p[0],p[1]],lat[p[0],p[1]]))
-              v.append((lon[p[0]+1,p[1]],lat[p[0]+1,p[1]]))
-           else:
-              l.append((lon[p[0],p[1]],lat[p[0],p[1]]))
-              l.append((lon[p[0]+1,p[1]],lat[p[0]+1,p[1]]))
-        elif p[0] == mask_img.shape[0]-1:
-             if (vip_eta[0] < p[0] < vip_eta[1] and vip_xi[0] < p[1] < vip_xi[1]):
-              v.append((lon[p[0],p[1]],lat[p[0],p[1]]))
-              v.append((lon[p[0]+1,p[1]],lat[p[0]+1,p[1]]))
-             else:
-              l.append((lon[p[0],p[1]],lat[p[0],p[1]]))
-              l.append((lon[p[0],p[1]+1],lat[p[0],p[1]+1]))
-        else:
-           if (vip_eta[0] < p[0] < vip_eta[1] and vip_xi[0] < p[1] < vip_xi[1]):
-              v.append((lon[p[0],p[1]+1],lat[p[0],p[1]+1]))
-              v.append((lon[p[0]+1,p[1]+1],lat[p[0]+1,p[1]+1]))
-           else:
-              l.append((lon[p[0],p[1]+1],lat[p[0],p[1]+1]))
-              l.append((lon[p[0]+1,p[1]+1],lat[p[0]+1,p[1]+1]))
+        l.append((plon[p[0],p[1]+1],plat[p[0],p[1]+1]))
+        l.append((plon[p[0]+1,p[1]+1],plat[p[0]+1,p[1]+1]))
 
         l.append((np.nan, np.nan))
         v.append((np.nan, np.nan))
-    segments = np.array(l)
-    vip_segments = np.array(v)
-    mapid.plot(segments[:,0], segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+2)
-    mapid.plot(vip_segments[:,0], vip_segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+3)
 
+    l_segments = np.array(l)
+    v_segments = np.array(v)
+    mapid.plot(l_segments[:,0], l_segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+2)
+    mapid.plot(v_segments[:,0], v_segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+3)
 
 def bilin_interp(x,y):
 #    lats = np.empty([len(y)])
@@ -204,10 +171,15 @@ print nstep
 #for j in range(istep[1]):
 #    print data2[j,:]
 
-GRD = pyroms.grid.get_ROMS_grid('CCS')
-mask = GRD.hgrid.mask_rho
-lat = GRD.hgrid.lat_rho
-lon = GRD.hgrid.lon_rho
+# ROMS Grid information
+grdfile = '/Users/elizabethdrenkard/ANALYSES/CCS/Inputs/Grid/CCS_grd_high_res_bathy_jerlov.nc' 
+fid = nc.Dataset(grdfile)
+mask_rho = fid.variables['mask_rho'][:]
+rlat = fid.variables['lat_rho'][:]
+rlon = fid.variables['lon_rho'][:]
+plat = fid.variables['psi_rho'][:]
+plon = fid.variables['psi_rho'][:]
+
 ### OFFSETS
 joffset = 0
 ioffset = 0
@@ -215,8 +187,7 @@ ioffset = 0
 m_offset = 0.01
 mask_val = 0
 map_order = 30
-vip_eta = [0,870]
-vip_xi  = [0,376]
+
 #Set up figure and animation
 fig = plt.figure(figsize=(8,8))
 fig.subplots_adjust(left=.1, right=.9, bottom=0, top=1)
@@ -228,21 +199,20 @@ m = Basemap(llcrnrlat=45-.5,urcrnrlat = 50+.5,llcrnrlon=-128-m_offset,urcrnrlon=
 # WHOLE DOMAIN
 #m = Basemap(llcrnrlat=np.min(lat)-m_offset,urcrnrlat = np.max(lat)+m_offset,llcrnrlon=np.min(lon)-m_offset,urcrnrlon=np.max(lon)+m_offset, resolution='f', ax=ax)
 
-P = m.pcolormesh(lon,lat,mask,vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
+P = m.pcolormesh(plon,plat,mask_rho[1:-1,1:-1],vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
 P.cmap.set_under('white')
 P.cmap.set_over([.9,.97,1])
-#m.pcolor(lon,lat,mask,vmin = -.1, vmax =1.1, cmap='ocean',zorder=-3)
 
 # MAP DETAILING
-outline_mask(m,mask,mask_val,lon[0,0],lat[0,0],lon[-1,-1],lat[-1,-1])
+outline_mask(m,mask_rho[1:-1,1:-1],mask_val,plon[0,0],plat[0,0],plon[-1,-1],plat[-1,-1])
 
 #DOMAIN OUTLINE
-for j in range(lat.shape[0]-2):
-    m.plot((lon[j,0],lon[j+1,0]),(lat[j,0],lat[j+1,0]),linewidth=2,color='k',zorder=map_order+1)
-    m.plot((lon[j,-1],lon[j+1,-1]),(lat[j,-1],lat[j+1,-1]),linewidth=2,color='k',zorder=map_order+1)
-for ii in range(lat.shape[1]-2):
-    m.plot((lon[0,ii],lon[0,ii+1]),(lat[0,ii],lat[0,ii+1]),linewidth=2,color='k',zorder=map_order+1)
-    m.plot((lon[-1,ii],lon[-1,ii+1]),(lat[-1,ii],lat[-1,ii+1]),linewidth=2,color='k',zorder=map_order+1)
+for j in range(plat.shape[0]-2):
+    m.plot((plon[j,0],plon[j+1,0]),(plat[j,0],plat[j+1,0]),linewidth=2,color='k',zorder=map_order+1)
+    m.plot((plon[j,-1],plon[j+1,-1]),(plat[j,-1],plat[j+1,-1]),linewidth=2,color='k',zorder=map_order+1)
+for ii in range(plat.shape[1]-2):
+    m.plot((plon[0,ii],plon[0,ii+1]),(plat[0,ii],plat[0,ii+1]),linewidth=2,color='k',zorder=map_order+1)
+    m.plot((plon[-1,ii],plon[-1,ii+1]),(plat[-1,ii],plat[-1,ii+1]),linewidth=2,color='k',zorder=map_order+1)
 
 polygon_patch(m,ax)
 
