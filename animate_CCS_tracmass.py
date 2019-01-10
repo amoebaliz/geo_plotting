@@ -120,8 +120,8 @@ fid = nc.Dataset(grdfile)
 mask_rho = fid.variables['mask_rho'][:]
 rlat = fid.variables['lat_rho'][:]
 rlon = fid.variables['lon_rho'][:]
-plat = fid.variables['psi_rho'][:]
-plon = fid.variables['psi_rho'][:]
+plat = fid.variables['lat_psi'][:]
+plon = fid.variables['lon_psi'][:]
 
 ### OFFSETS
 joffset = 0
