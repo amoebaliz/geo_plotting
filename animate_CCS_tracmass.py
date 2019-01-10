@@ -33,15 +33,15 @@ def outline_mask(mapid,mask_img,val,x0,y0,x1,y1):
     v = []
     # horizonal segments
     for p in zip(*hor_seg):
-        v.append((plons[p[0]+1,p[1]],plat[p[0]+1,p[1]]))
-        v.append((plons[p[0]+1,p[1]+1],plat[p[0]+1,p[1]+1]))
+        v.append((plon[p[0]+1,p[1]],plat[p[0]+1,p[1]]))
+        v.append((plon[p[0]+1,p[1]+1],plat[p[0]+1,p[1]+1]))
 
         l.append((np.nan,np.nan))
         v.append((np.nan,np.nan))
     #vertical segments
     for p in zip(*ver_seg):
-        l.append((plons[p[0],p[1]+1],plat[p[0],p[1]+1]))
-        l.append((plons[p[0]+1,p[1]+1],plat[p[0]+1,p[1]+1]))
+        l.append((plon[p[0],p[1]+1],plat[p[0],p[1]+1]))
+        l.append((plon[p[0]+1,p[1]+1],plat[p[0]+1,p[1]+1]))
 
         l.append((np.nan, np.nan))
         v.append((np.nan, np.nan))
@@ -146,12 +146,12 @@ P.cmap.set_over([.9,.97,1])
 outline_mask(m,mask_rho[1:-1,1:-1],mask_val,plon[0,0],plat[0,0],plon[-1,-1],plat[-1,-1])
 
 #DOMAIN OUTLINE
-for j in range(lat.shape[0]-2):
-    m.plot((lon[j,0],lon[j+1,0]),(lat[j,0],lat[j+1,0]),linewidth=2,color='k',zorder=map_order+1)
-    m.plot((lon[j,-1],lon[j+1,-1]),(lat[j,-1],lat[j+1,-1]),linewidth=2,color='k',zorder=map_order+1)
-for ii in range(lat.shape[1]-2):
-    m.plot((lon[0,ii],lon[0,ii+1]),(lat[0,ii],lat[0,ii+1]),linewidth=2,color='k',zorder=map_order+1)
-    m.plot((lon[-1,ii],lon[-1,ii+1]),(lat[-1,ii],lat[-1,ii+1]),linewidth=2,color='k',zorder=map_order+1)
+for j in range(plat.shape[0]-1):
+    m.plot((plon[j,0],plon[j+1,0]),(plat[j,0],plat[j+1,0]),linewidth=2,color='k',zorder=map_order+1)
+    m.plot((plon[j,-1],plon[j+1,-1]),(plat[j,-1],plat[j+1,-1]),linewidth=2,color='k',zorder=map_order+1)
+for ii in range(plat.shape[1]-1):
+    m.plot((plon[0,ii],plon[0,ii+1]),(plat[0,ii],plat[0,ii+1]),linewidth=2,color='k',zorder=map_order+1)
+    m.plot((plon[-1,ii],plon[-1,ii+1]),(plat[-1,ii],plat[-1,ii+1]),linewidth=2,color='k',zorder=map_order+1)
 
 polygon_patch(m,ax)
 
