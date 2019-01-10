@@ -27,24 +27,23 @@ def outline_mask(mapid,mask_img,val,x0,y0,x1,y1):
     v = []
     # horizonal segments
     for p in zip(*hor_seg):
-        v.append((plons[p[0]+1,p[1]],plats[p[0]+1,p[1]]))
-        v.append((plons[p[0]+1,p[1]+1],plats[p[0]+1,p[1]+1]))
+        v.append((plon[p[0]+1,p[1]],plat[p[0]+1,p[1]]))
+        v.append((plon[p[0]+1,p[1]+1],plat[p[0]+1,p[1]+1]))
 
         l.append((np.nan,np.nan))
         v.append((np.nan,np.nan))
     #vertical segments
     for p in zip(*ver_seg):
-        l.append((plons[p[0],p[1]+1],plats[p[0],p[1]+1]))
-        l.append((plons[p[0]+1,p[1]+1],plats[p[0]+1,p[1]+1]))
+        l.append((plon[p[0],p[1]+1],plat[p[0],p[1]+1]))
+        l.append((plon[p[0]+1,p[1]+1],plat[p[0]+1,p[1]+1]))
 
         l.append((np.nan, np.nan))
         v.append((np.nan, np.nan))
 
-    segments = np.array(l)
-    vip_segments = np.array(v)
-    print vip_segments.shape
-    mapid.plot(segments[:,0], segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+2)
-    mapid.plot(vip_segments[:,0], vip_segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+3)
+    l_segments = np.array(l)
+    v_segments = np.array(v)
+    mapid.plot(l_segments[:,0], l_segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+2)
+    mapid.plot(v_segments[:,0], v_segments[:,1], latlon=True, color=(0,0,0), linewidth=.75,zorder=map_order+3)
 
 # -------------------------------------------
 
@@ -52,10 +51,10 @@ grd_fil = '/Volumes/P1/ROMS-Inputs/MaPhil/Grid/MaPhil_grd_high_res_bathy_mixedJe
 grd_fid = nc.Dataset(grd_fil)
 mask_rho = grd_fid.variables['mask_rho'][:]
 mask_psi = grd_fid.variables['mask_psi'][:]
-rlats = grd_fid.variables['lat_rho'][:]
-rlons = grd_fid.variables['lon_rho'][:]
-plats = grd_fid.variables['lat_psi'][:]
-plons = grd_fid.variables['lon_psi'][:]
+rlat = grd_fid.variables['lat_rho'][:]
+rlon = grd_fid.variables['lon_rho'][:]
+plat = grd_fid.variables['lat_psi'][:]
+plon = grd_fid.variables['lon_psi'][:]
 
 ### OFFSETS
 joffset = 0
@@ -70,22 +69,22 @@ fig = plt.figure(figsize=(8,8))
 fig.subplots_adjust(left=.1, right=.9, bottom=0, top=1)
 ax = fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(0, mask_psi.shape[1]), ylim=(0, mask_psi.shape[0]))
 
-m = Basemap(llcrnrlat=np.min(plats)-m_offset,urcrnrlat = np.max(plats)+m_offset,llcrnrlon=np.min(plons)-m_offset,urcrnrlon=np.max(plons)+m_offset, resolution='f', ax=ax)
-P = m.pcolormesh(plons,plats,mask_rho[1:-1,1:-1],vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
+m = Basemap(llcrnrlat=np.min(plat)-m_offset,urcrnrlat = np.max(plat)+m_offset,llcrnrlon=np.min(plon)-m_offset,urcrnrlon=np.max(plon)+m_offset, resolution='f', ax=ax)
+P = m.pcolormesh(plons,plat,mask_rho[1:-1,1:-1],vmin=.5,vmax=.75,edgecolors='face',cmap='Blues',zorder=map_order)
 P.cmap.set_under('white')
 P.cmap.set_over([.9,.97,1])
-#m.plot(rlons,rlats,'ko',markersize=.1,zorder=map_order+3)
+#m.plot(rlon,rlat,'ko',markersize=.1,zorder=map_order+3)
 
 # MAP DETAILING
-outline_mask(m,mask_rho[1:-1,1:-1],mask_val,plons[0,0],plats[0,0],plons[-1,-1],plats[-1,-1])
+outline_mask(m,mask_rho[1:-1,1:-1],mask_val,plon[0,0],plat[0,0],plon[-1,-1],plat[-1,-1])
 
 #DOMAIN OUTLINE
-for j in range(plats.shape[0]-1):
-    m.plot((plons[j,0],plons[j+1,0]),(plats[j,0],plats[j+1,0]),linewidth=2,color='k',zorder=map_order+1)
-    m.plot((plons[j,-1],plons[j+1,-1]),(plats[j,-1],plats[j+1,-1]),linewidth=2,color='k',zorder=map_order+1)
-for ii in range(plats.shape[1]-1):
-    m.plot((plons[0,ii],plons[0,ii+1]),(plats[0,ii],plats[0,ii+1]),linewidth=2,color='k',zorder=map_order+1)
-    m.plot((plons[-1,ii],plons[-1,ii+1]),(plats[-1,ii],plats[-1,ii+1]),linewidth=2,color='k',zorder=map_order+1)
+for j in range(plat.shape[0]-1):
+    m.plot((plon[j,0],plon[j+1,0]),(plat[j,0],plat[j+1,0]),linewidth=2,color='k',zorder=map_order+1)
+    m.plot((plon[j,-1],plon[j+1,-1]),(plat[j,-1],plat[j+1,-1]),linewidth=2,color='k',zorder=map_order+1)
+for ii in range(plat.shape[1]-1):
+    m.plot((plon[0,ii],plon[0,ii+1]),(plat[0,ii],plat[0,ii+1]),linewidth=2,color='k',zorder=map_order+1)
+    m.plot((plon[-1,ii],plon[-1,ii+1]),(plat[-1,ii],plat[-1,ii+1]),linewidth=2,color='k',zorder=map_order+1)
 
 polygon_patch(m,ax)
 
