@@ -65,27 +65,10 @@ def bilin_interp(x,y):
         flons = np.array([[rlon[y1,x1],rlon[y2,x1]],\
                           [rlon[y1,x2],rlon[y2,x2]]])
 
-        if ((x1 != x2) & (y1 != y2)):
-           # run bilinear interp
-           lats[nt] = np.dot(xdifs,np.dot(flats,ydifs)) 
-           lons[nt] = np.dot(xdifs,np.dot(flons,ydifs))  
-           m.plot(lons[nt],lats[nt],'bo',ms = 2,zorder = map_order+10)
+        # run bilinear interp
+        lats[nt] = np.dot(xdifs,np.dot(flats,ydifs)) 
+        lons[nt] = np.dot(xdifs,np.dot(flons,ydifs))  
 
-        elif ((x1 == x2) & (y1 != y2)):
-           # INTERP BASED JUST ON y-values
-           lats[nt] = np.dot(flats[0,:],ydifs) 
-           lons[nt] = np.dot(flons[0,:],ydifs)
-           m.plot(lons[nt],lats[nt],'go',ms = 2,zorder = map_order+10)
-        elif ((x1 != x2) & (y1 == y2)):
-           # INTEP BASED JUST ON x-values
-           lats[nt] = np.dot(xdifs,flats[:,0])
-           m.plot(lons[nt],lats[nt],'ro',ms = 2,zorder = map_order+10)
-
-        else:
-             # FALLS EXACTLY ON RHO POINT; y1=y2 and x1=x2
-             lats[nt] = rlat[y1,x1]
-             lons[nt] = rlon[y1,x1]
-             m.plot(lons[nt],lats[nt],'yo',ms = 2,zorder = map_order+10)
     return lats,lons
      
 #~~~~~~~~REPLACE FILENAME HERE~~~~~~~#
